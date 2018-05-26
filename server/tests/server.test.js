@@ -6,29 +6,11 @@ const {Todo}= require('./../models/todo');
 
 const {ObjectID} = require('mongodb');
 
-const todos = [
+const{todos,populateTodos,users,populateUsers} = require('./seed/seed.js');
 
-    {
-        _id: new ObjectID(),
-        text:'first test todo'
-    },
-    {      
-        _id: new ObjectID(),                             //this is the dummy text because beforeEach deletes every thing
-        text:'second test todo',
-        completed:true,
-        completedAt:444
-    }
-];
 
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-    return Todo.insertMany(todos, (error, docs) => {
-        if(error){
-            return done(error);
-        }
-    });
-    }).then(() => done());
-   });
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('Post/todos',()=>{
     
@@ -207,6 +189,23 @@ describe('PATCH /todos/:id', () => {
           expect(res.body.todo.completed).toBe(false);
           expect(res.body.todo.completedAt).toNotExist();
         })
+        .end(done);
+    });
+  });
+
+  describe('GET/users/me',()=>{
+
+    it('should return user if authenticated',(done)=>{
+
+        request(app)
+        .get('/users/me')
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body._id).toBe(users[0]._id.toHexString());
+            expect(res.body.email).toBe(users[0].email);
+        })
+
         .end(done);
     });
   });
