@@ -89,6 +89,33 @@ UserSchema.statics.findByToken = function(token){       //this method is the mod
       });
 };
 
+UserSchema.statics.findByCredentials = function(email,password){
+    var User = this;
+    return User.findOne({email}).then((user)=>{
+        if(!user){
+            return Promise.reject();
+        }
+
+        return new Promise((resolve,reject)=>{    //bcrypt methods does not support promises
+            
+             bcrypt.compare(password,user.password,(err,res)=>{
+
+                if(res){
+                    resolve(user);
+                }
+                else{
+
+                    reject(user);
+                }
+
+                
+                 
+             });
+        });            
+
+    })
+}
+
 UserSchema.pre('save',function(next){     //this is mongoose middleware. this is gonna run before the save event
  
     var user = this;   //accessing individual documents
