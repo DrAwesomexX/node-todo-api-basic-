@@ -21,7 +21,11 @@ const users = [
     {
         _id:userTwoId,
         email:'sneha@example.com',
-        password:'userTwoPass'
+        password:'userTwoPass',
+        tokens:[{
+            access:userOneId,
+            token:jwt.sign({_id:userTwoId,access:'auth'},'abc123').toString()
+        }]
 
     }
 ]
@@ -31,13 +35,15 @@ const todos = [
 
     {
         _id: new ObjectID(),
-        text:'first test todo'
+        text:'first test todo',
+        _creator:userOneId
     },
     {      
         _id: new ObjectID(),                             //this is the dummy text because beforeEach deletes every thing
         text:'second test todo',
         completed:true,
-        completedAt:444
+        completedAt:444,
+        _creator:userTwoId
     }
 ];
 
