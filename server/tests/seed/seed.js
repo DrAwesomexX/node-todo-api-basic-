@@ -1,72 +1,54 @@
 const {ObjectID} = require('mongodb');
-const {Todo} = require('./../../models/todo.js');
-const {User} = require('./../../models/user.js');
 const jwt = require('jsonwebtoken');
+
+const {Todo} = require('./../../models/todo');
+const {User} = require('./../../models/user');
 
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
-const users = [
+const users = [{
+  _id: userOneId,
+  email: 'andrew@example.com',
+  password: 'userOnePass',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({_id: userOneId, access: 'auth'}, process.env.JWT_SECRET).toString()
+  }]
+}, {
+  _id: userTwoId,
+  email: 'jen@example.com',
+  password: 'userTwoPass',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({_id: userTwoId, access: 'auth'}, process.env.JWT_SECRET).toString()
+  }]
+}];
 
-    {
-     _id: userOneId,
-     email:'ajay@example.com',
-     password:'userOnePass',
-     tokens:[{
-         access:userOneId,
-         token:jwt.sign({_id:userOneId,access:'auth'},'abc123').toString()
-     }]
+const todos = [{
+  _id: new ObjectID(),
+  text: 'First test todo',
+  _creator: userOneId
+}, {
+  _id: new ObjectID(),
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333,
+  _creator: userTwoId
+}];
 
-    },
-
-    {
-        _id:userTwoId,
-        email:'sneha@example.com',
-        password:'userTwoPass',
-        tokens:[{
-            access:userOneId,
-            token:jwt.sign({_id:userTwoId,access:'auth'},'abc123').toString()
-        }]
-
-    }
-]
- 
-
-const todos = [
-
-    {
-        _id: new ObjectID(),
-        text:'first test todo',
-        _creator:userOneId
-    },
-    {      
-        _id: new ObjectID(),                             //this is the dummy text because beforeEach deletes every thing
-        text:'second test todo',
-        completed:true,
-        completedAt:444,
-        _creator:userTwoId
-    }
-];
-
-const populateTodos = (done)=>{
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(todos);
-        }).then(() => done());
-}
-
-const populateUsers = (done)=>{
-
-    User.remove({}).then(()=>{
-        var user1 = new User(users[0]).save();
-        var user2 = new User(users[1]).save();
-
-        return Promise.all([user1,user2]);
-
-    }).then(()=>done());
+const populateTodos = (done) => {
+  Todo.remove({}).then(() => {
+    return Todo.insertMany(todos);
+  }).then(() => done());
 };
 
-module.exports = {
-    todos,
-    populateTodos,
-    users,
-    populateUsers
+const populateUsers = (done) => {
+  User.remove({}).then(() => {
+    var userOne = new User(users[0]).save();
+    var userTwo = new User(users[1]).save();
+
+    return Promise.all([userOne, userTwo])
+  }).then(() => done());
 };
+
+module.exports = {todos, populateTodos, users, populateUsers};

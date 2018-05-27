@@ -52,17 +52,17 @@ UserSchema.methods.generateAuthToken = function(){   // this method is the insta
 
     var user = this;   // instance methods are call with the individual items
     var access = 'auth';
-    var token = jwt.sign({_id:user._id.toHexString(),access},'abc123').toString();
+    var token = jwt.sign({_id:user._id.toHexString(),access},process.env.JWT_SECRET).toString();
 
     user.tokens = user.tokens.concat([{access,token}]);
 
   return  user.save().then(()=>{                //in this case we are returning a value
       return token;
-    })
+    });
 
 
 
-}
+};
  
 UserSchema.statics.findByToken = function(token){       //this method is the model method
       var User = this; // model method called upon whole model in this case User is the model
@@ -71,7 +71,7 @@ UserSchema.statics.findByToken = function(token){       //this method is the mod
       //jwt.verify function is gonna throw error when anything goes wrong
 
       try{
-       decoded =   jwt.verify(token,'abc123')
+       decoded =   jwt.verify(token,process.env.JWT_SECRET)
       }catch(e){
           //return new Promise((resolve,reject)=>{
               //reject()
@@ -113,8 +113,8 @@ UserSchema.statics.findByCredentials = function(email,password){
              });
         });            
 
-    })
-}
+    });
+};
 
 UserSchema.methods.removeToken = function(token){
       var user = this;
@@ -125,8 +125,8 @@ UserSchema.methods.removeToken = function(token){
                   token
               }
           }
-      })
-}
+      });
+};
 
 UserSchema.pre('save',function(next){     //this is mongoose middleware. this is gonna run before the save event
  
