@@ -116,6 +116,18 @@ UserSchema.statics.findByCredentials = function(email,password){
     })
 }
 
+UserSchema.methods.removeToken = function(token){
+      var user = this;
+
+     return  user.update({
+          $pull:{
+              tokens:{
+                  token
+              }
+          }
+      })
+}
+
 UserSchema.pre('save',function(next){     //this is mongoose middleware. this is gonna run before the save event
  
     var user = this;   //accessing individual documents
